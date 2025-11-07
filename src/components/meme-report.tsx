@@ -21,8 +21,8 @@ type Report = GenerateEchoFeedAndBustItOutput & { opinion: string };
 export function MemeReport({ report }: { report: Report }) {
   return (
     <div className="container mx-auto max-w-4xl space-y-8">
-      <Card>
-        <CardHeader className="relative">
+      <Card className="overflow-hidden shadow-lg">
+        <CardHeader className="relative border-b bg-muted/30 p-6">
           <CardTitle className="font-headline text-3xl">Meme Report</CardTitle>
           <CardDescription>Your opinion, stress-tested.</CardDescription>
           <div className="absolute right-6 top-6 flex flex-col items-center gap-2">
@@ -33,8 +33,8 @@ export function MemeReport({ report }: { report: Report }) {
             <Badge variant="secondary">Bubble Score</Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="rounded-lg border bg-muted/30 p-4">
+        <CardContent className="space-y-8 p-6">
+          <div className="rounded-lg border bg-background p-4">
             <h3 className="flex items-center gap-2 font-headline text-lg">
               <Quote className="size-5 text-muted-foreground" />
               Original Opinion
@@ -52,7 +52,7 @@ export function MemeReport({ report }: { report: Report }) {
               </h3>
               <div className="space-y-3 rounded-lg border bg-muted/50 p-4">
                 {report.echoFeed.map((echo, index) => (
-                  <p key={index} className="text-sm">
+                  <p key={index} className="text-sm text-muted-foreground">
                     " {echo} "
                   </p>
                 ))}
@@ -65,9 +65,9 @@ export function MemeReport({ report }: { report: Report }) {
               </h3>
               <div className="space-y-3 rounded-lg border bg-background p-4">
                 {report.bustFeed.map((bust, index) => (
-                  <div key={index}>
+                  <div key={index} className="border-b border-dashed pb-2 last:border-b-0 last:pb-0">
                     <p className="text-sm">" {bust} "</p>
-                    <div className="flex items-center gap-1 text-xs text-green-700">
+                    <div className="flex items-center gap-1 pt-1 text-xs text-green-700">
                       <CheckCircle className="size-3" />
                       <span>Fact-checked</span>
                     </div>
@@ -76,11 +76,13 @@ export function MemeReport({ report }: { report: Report }) {
               </div>
             </div>
           </div>
+          
           <Separator />
+
           <div>
             <h3 className="mb-2 font-headline text-xl">Shareable Summary</h3>
-            <div className="rounded-lg bg-primary/10 p-4">
-              <p className="italic text-primary-foreground/90">
+            <div className="rounded-lg bg-accent/10 p-4 text-center">
+              <p className="font-medium italic text-accent-foreground/90">
                 {report.memeReport}
               </p>
             </div>
