@@ -39,7 +39,15 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
           selected={date}
           onSelect={setDate}
           initialFocus
-          disabled={(day) => day < new Date(new Date().setFullYear(new Date().getFullYear() + 1)) || day > new Date(new Date().setFullYear(new Date().getFullYear() + 10))}
+          disabled={(day) => {
+            const today = new Date();
+            const oneYearFromNow = new Date(today.setFullYear(today.getFullYear() + 1));
+            oneYearFromNow.setHours(0, 0, 0, 0); // Start of the day
+            const tenYearsFromNow = new Date(today.setFullYear(today.getFullYear() + 9)); // was already +1, so add 9 more
+            tenYearsFromNow.setHours(23, 59, 59, 999); // End of the day
+
+            return day < oneYearFromNow || day > tenYearsFromNow;
+          }}
         />
       </PopoverContent>
     </Popover>
