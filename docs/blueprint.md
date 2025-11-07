@@ -2,12 +2,16 @@
 
 ## Core Features:
 
-- Echo Chamber Simulator: Generate an 'echo feed' of absurd agreements to a user's submitted opinion, then 'bust' it with counterarguments from diverse AI personas. Creates a shareable 'meme report' with a 'Bubble Score'. This will include an AI tool to determine fact-checking for diverse AI personas.
-- Multiplayer Arenas: Enable real-time debates with AI moderation, fallacy detection (using NLP as an AI tool), scoring, chat, emoji reactions, and timed rounds. Offer 1v1, group, and AI vs. Human modes with 'infection links' tailoring the arena to the recipient's inferred biases.
-- Global Tournaments: Create weekly tournaments on trending topics (auto-pulled from X API or news feeds) with a bracket system.  The system includes AI-generated opponents and prizes that can be won. Community voting determines influence over the results.
-- Opinion Time Capsules: Seal user opinions in vaults on the MongoDB database with future unlock dates. AI generates predictive simulations (used as a tool) about the opinion's future relevance, auto-notifying users upon unlock with shareable 'hindsight reports'.
-- Personal Dashboard & Analytics: Display bias evolution using skill trees, weekly reports, and visualizations of view shifts (charts via libraries like Recharts) in a personal dashboard, which uses MongoDB to keep user data safe and persistent.
-- AI-assisted Moderation: Toxic content flagged is then passed to a human for review and to prevent any abuse to the system. The system makes use of the MongoDB to help determine bad-actors based on user feedback and toxic flags.
+- **Echo Chamber Simulator**: To help users identify and break out of personal bias bubbles by simulating exaggerated agreement (echo chamber) followed by balanced counterarguments, promoting critical thinking and self-awareness without judgment.
+- **Multiplayer Arenas**: To facilitate real-time, structured debates between users or with AI, fostering empathy and logical argumentation while detecting fallacies to ensure fair, productive discussions.
+- **Global Tournaments**: To engage large communities in competitive, topic-based events, amplifying viral growth by tying into current trends and rewarding nuanced thinking with prizes, encouraging widespread participation.
+- **Opinion Guilds**: To build themed communities for ongoing discussions, allowing users to form alliances, share insights, and collaborate on challenges, creating network effects for organic retention and growth.
+- **Opinion Time Capsules**: To encourage long-term reflection by sealing opinions for future review, with AI predictions highlighting how views might evolve, promoting humility and forward-thinking.
+- **Advanced Analytics Dashboards**: To provide data-driven insights on personal and global bias trends, empowering users with visualizations to track growth and inform decisions, while aggregating anonymized data for platform improvements.
+- **AI Global Moderation Network**: To maintain a safe, inclusive environment by automatically filtering toxic content across all features, escalating complex cases to humans, ensuring trust and compliance at scale.
+- **Cross-Platform SDKs & API Ecosystem**: To extend OAN beyond the web, allowing integrations with apps/mobile for seamless access, fostering an ecosystem where developers build extensions, driving adoption.
+- **Big Data AI Insights**: To analyze platform-wide trends (e.g., shifting opinions on global issues), providing valuable reports for users, researchers, and enterprises, enhancing OAN's authority.
+- **NFT Marketplace & VR/AR Hooks**: To monetize and gamify achievements (e.g., debate wins as NFTs), with VR/AR for immersive experiences, attracting tech-savvy users and future-proofing the platform.
 
 ## Style Guidelines:
 

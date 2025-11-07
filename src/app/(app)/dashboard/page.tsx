@@ -1,55 +1,60 @@
 'use client';
 
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { submitOpinion } from './actions';
-import { MemeReport } from '@/components/meme-report';
-import { AnimatePresence, motion } from "framer-motion";
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-      {pending ? "Busting..." : "Bust my Bubble"}
-    </Button>
-  );
-}
 
 export default function DashboardPage() {
-  const [state, formAction] = useActionState(submitOpinion, { error: null });
-
-  // Note: In a real app, the report would be fetched based on the redirect,
-  // but for this prototype, we are using the form state to show the report.
-  // The redirect logic in actions.ts handles the actual navigation.
-
   return (
     <div className="container mx-auto max-w-4xl space-y-8">
-      <Card className="overflow-hidden">
+      <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Echo Chamber Simulator</CardTitle>
-          <CardDescription>
-            Enter an opinion and see how it gets amplified in a digital bubble, then watch as AI personas tear it down.
-          </CardDescription>
+          <CardTitle className="font-headline text-3xl">Welcome back, [User]!</CardTitle>
+          <CardDescription>Here's a snapshot of your activity on the Opinionated Alpha Network.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="space-y-4">
-            <Textarea
-              id="opinion"
-              name="opinion"
-              placeholder="What's your hot take? e.g., 'Pineapple belongs on pizza.'"
-              className="min-h-[100px] text-base"
-              maxLength={280}
-              required
-            />
-             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Max 280 characters.</p>
-              <SubmitButton />
-            </div>
-            {state?.error && <p className="pt-2 text-sm text-destructive">{state.error}</p>}
-          </form>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Stats</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Opinions Shared: 12</p>
+                <p>Debates Won: 5</p>
+                <p>Current Rank: Challenger</p>
+              </CardContent>
+            </Card>
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>You challenged the opinion "Coffee is overrated."</p>
+                <p>You joined the "Technology & Ethics" guild.</p>
+                <p>You created a new time capsule: "Predictions for 2025."</p>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Featured Arena</CardTitle>
+          <CardDescription>A popular debate happening right now.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="font-bold">Is social media a net positive or negative for society?</p>
+          <Button className="mt-4">Join the Debate</Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Start a New Debate</CardTitle>
+          <CardDescription>Challenge an opinion and see how it fares in the arena.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button className="w-full">Start New Debate</Button>
         </CardContent>
       </Card>
     </div>

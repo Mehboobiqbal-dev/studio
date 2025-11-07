@@ -1,58 +1,23 @@
-import { BiasEvolutionChart, ViewShiftChart } from "@/components/analytics-charts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Award, BrainCircuit, Users } from "lucide-react";
+'use client';
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AnalyticsPage() {
   return (
-    <div className="space-y-6">
-      <h2 className="font-headline text-3xl">Personal Dashboard & Analytics</h2>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Skill Tree</CardTitle>
-            <BrainCircuit className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Perspective Shifter</div>
-            <p className="text-xs text-muted-foreground">
-              Unlocked after 20 debates
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex -space-x-2">
-              <Badge>Top Debater</Badge>
-              <Badge variant="secondary">Bubble Buster</Badge>
-              <Badge variant="outline">Time Traveler</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground pt-2">
-              +5 this month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Guild</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Tech Utopians</div>
-            <p className="text-xs text-muted-foreground">
-              60% shifted views this month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <BiasEvolutionChart />
-        <ViewShiftChart />
-      </div>
+    <div className="container mx-auto max-w-4xl space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-3xl">Advanced Analytics</CardTitle>
+          <CardDescription>
+            Track your growth and explore global bias trends.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col space-y-4">
+          <Button>Personal Dashboard</Button>
+          <Button>Global View</Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

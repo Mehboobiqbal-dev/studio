@@ -14,6 +14,10 @@ import {
     Trophy,
     Hourglass,
     ShieldCheck,
+    Users,
+    Code,
+    LineChart,
+    Store,
 } from "lucide-react";
 
 const navItems = [
@@ -33,9 +37,14 @@ const navItems = [
         label: "Tournaments",
     },
     {
-        href: "/time-capsule",
+        href: "/guilds",
+        icon: Users,
+        label: "Guilds",
+    },
+    {
+        href: "/time-capsules",
         icon: Hourglass,
-        label: "Time Capsule",
+        label: "Time Capsules",
     },
     {
         href: "/analytics",
@@ -47,6 +56,21 @@ const navItems = [
         icon: ShieldCheck,
         label: "Moderation",
     },
+    {
+        href: "/sdks",
+        icon: Code,
+        label: "SDKs & API",
+    },
+    {
+        href: "/insights",
+        icon: LineChart,
+        label: "Insights",
+    },
+    {
+        href: "/marketplace",
+        icon: Store,
+        label: "Marketplace",
+    },
 ];
 
 export function SidebarNav() {
@@ -56,17 +80,17 @@ export function SidebarNav() {
         <SidebarMenu>
             {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                    <Link href={item.href} passHref>
-                        <SidebarMenuButton
-                            as="a"
-                            isActive={pathname.startsWith(item.href)}
-                            tooltip={item.label}
-                            className="text-base"
-                        >
+                    <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                        className="text-base"
+                    >
+                        <Link href={item.href}>
                             <item.icon />
                             <span>{item.label}</span>
-                        </SidebarMenuButton>
-                    </Link>
+                        </Link>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
             ))}
         </SidebarMenu>
