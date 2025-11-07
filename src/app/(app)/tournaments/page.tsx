@@ -1,7 +1,8 @@
 'use client';
 
 import React from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { createAIOpponentsForTournament, type CreateAIOpponentsForTournamentOutput } from "@/ai/flows/create-ai-opponents-for-tournaments";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -45,7 +46,7 @@ function SubmitButton() {
 
 export default function TournamentsPage() {
   const initialState: State = { result: null, error: null };
-  const [state, formAction] = useFormState(createOpponentsAction, initialState);
+  const [state, formAction] = useActionState(createOpponentsAction, initialState);
   const [opponentCount, setOpponentCount] = React.useState(8);
   const tournamentBanner = PlaceHolderImages.find(img => img.id === 'tournament-banner');
 

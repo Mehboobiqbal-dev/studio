@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ function SubmitButton() {
 }
 
 export default function DashboardPage() {
-  const [state, formAction] = useFormState(submitOpinion, { error: null });
+  const [state, formAction] = useActionState(submitOpinion, { error: null });
 
   // Note: In a real app, the report would be fetched based on the redirect,
   // but for this prototype, we are using the form state to show the report.

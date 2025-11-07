@@ -1,7 +1,8 @@
 'use client'
 
 import React from "react"
-import { useFormState, useFormStatus } from "react-dom"
+import { useActionState } from "react"
+import { useFormStatus } from "react-dom"
 import { generatePredictiveSimulations, type GeneratePredictiveSimulationsOutput } from "@/ai/flows/generate-predictive-simulations-for-time-capsules"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -43,7 +44,7 @@ function SubmitButton() {
 
 export default function TimeCapsulePage() {
   const initialState: State = { result: null, error: null };
-  const [state, formAction] = useFormState(sealOpinionAction, initialState);
+  const [state, formAction] = useActionState(sealOpinionAction, initialState);
   const [date, setDate] = React.useState<Date | undefined>(() => {
     const nextYear = new Date();
     nextYear.setFullYear(nextYear.getFullYear() + 1);

@@ -1,7 +1,8 @@
 'use client';
 
 import React from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { moderateContent, type ModerateContentOutput } from "@/ai/flows/assist-with-content-moderation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,7 @@ function SubmitButton() {
 
 export default function ModerationPage() {
   const initialState: State = { result: null, error: null };
-  const [state, formAction] = useFormState(moderateContentAction, initialState);
+  const [state, formAction] = useActionState(moderateContentAction, initialState);
 
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-3">

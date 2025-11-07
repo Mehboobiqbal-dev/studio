@@ -1,7 +1,8 @@
 'use client';
 
 import React from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { moderateRealTimeDebate, type ModerateRealTimeDebateOutput } from "@/ai/flows/moderate-real-time-debates";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -44,7 +45,7 @@ function SubmitButton() {
 
 export default function ArenasPage() {
   const initialState: State = { result: null, error: null };
-  const [state, formAction] = useFormState(moderateStatementAction, initialState);
+  const [state, formAction] = useActionState(moderateStatementAction, initialState);
 
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
