@@ -20,12 +20,7 @@ const navItems = [
     {
         href: "/dashboard",
         icon: MessageSquareQuote,
-        label: "Echo Chamber",
-    },
-    {
-        href: "/analytics",
-        icon: Gauge,
-        label: "Analytics",
+        label: "Simulator",
     },
     {
         href: "/arenas",
@@ -41,6 +36,11 @@ const navItems = [
         href: "/time-capsule",
         icon: Hourglass,
         label: "Time Capsule",
+    },
+    {
+        href: "/analytics",
+        icon: Gauge,
+        label: "Analytics",
     },
     {
         href: "/moderation",
@@ -60,6 +60,7 @@ export function SidebarNav() {
                         <SidebarMenuButton
                             isActive={pathname.startsWith(item.href)}
                             tooltip={item.label}
+                            className="text-base"
                         >
                             <item.icon />
                             <span>{item.label}</span>
