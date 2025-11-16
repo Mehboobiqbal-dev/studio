@@ -39,6 +39,18 @@ export default function CreatePostPage() {
     }
   }, [user, authLoading, router]);
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -112,18 +124,6 @@ export default function CreatePostPage() {
       setLoading(false);
     }
   };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect
-  }
 
   return (
     <div className="min-h-screen bg-background">

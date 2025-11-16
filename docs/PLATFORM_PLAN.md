@@ -129,31 +129,40 @@ A Reddit/Quora-style platform focused on conspiracy theories and opinions, with 
 
 ### Phase 1: Core Models & Database
 - [x] User model (already exists)
-- [ ] Post model
-- [ ] Topic model
-- [ ] Comment model
-- [ ] Vote model
+- [x] Post model
+- [x] Topic model
+- [x] Comment model
+- [x] Vote model
 
 ### Phase 2: Core Pages (SSR)
-- [ ] Home page with feed
-- [ ] Post detail page
-- [ ] Topic page
-- [ ] Topics list page
+- [x] Home page with feed
+- [x] Post detail page
+- [x] Topic page
+- [x] Topics list page
+- [x] Search page
+- [x] Trending page
+- [x] User profile page
 
 ### Phase 3: AI Integration
-- [ ] Gemini flow for generating theories
-- [ ] Scheduled generation
-- [ ] Auto-posting system
+- [x] Gemini flow for generating theories
+- [x] Auto-generation API endpoint
+- [x] Batch generation for topics
+- [ ] Scheduled cron job setup (external)
 
 ### Phase 4: User Features
-- [ ] Create post form
-- [ ] Comment system
-- [ ] Voting system
-- [ ] User profiles
+- [x] Create post form (auth required)
+- [x] Comment system with threading
+- [x] Voting system (upvote/downvote)
+- [x] User profiles
+- [x] Navigation with user menu
+- [ ] Follow topics feature
+- [ ] Save/bookmark posts
 
 ### Phase 5: SEO Optimization
-- [ ] Dynamic metadata
-- [ ] Structured data
-- [ ] Sitemap
-- [ ] Open Graph
+- [x] Dynamic metadata
+- [x] Structured data (JSON-LD)
+- [x] Sitemap generation
+- [x] Open Graph tags
+- [x] Canonical URLs
+- [x] Robots.txt
 

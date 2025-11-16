@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface PostVoteButtonsProps {
   postId: string;
@@ -22,9 +23,27 @@ export function PostVoteButtons({
 }: PostVoteButtonsProps) {
   const [upvotes, setUpvotes] = useState(initialUpvotes);
   const [downvotes, setDownvotes] = useState(initialDownvotes);
+  const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    // Fetch user's vote status
+    if (user) {
+      fetch(`/api/posts/${postSlug}/vote-status`, {
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.userVote) {
+            setUserVote(data.userVote);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [user, postSlug]);
 
   const handleVote = async (type: 'upvote' | 'downvote') => {
     if (!user) {
@@ -36,6 +55,8 @@ export function PostVoteButtons({
       router.push(`/login?redirect=/p/${postSlug}`);
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await fetch('/api/votes', {
@@ -53,11 +74,35 @@ export function PostVoteButtons({
       const data = await response.json();
 
       if (response.ok) {
-        // Optimistically update UI
-        if (type === 'upvote') {
-          setUpvotes(data.voted ? upvotes + 1 : upvotes - 1);
+        // Update vote state
+        if (data.voted) {
+          // User voted
+          if (userVote === type) {
+            // Toggle off
+            setUserVote(null);
+            if (type === 'upvote') {
+              setUpvotes(upvotes - 1);
+            } else {
+              setDownvotes(downvotes - 1);
+            }
+          } else {
+            // New vote or changed vote
+            if (userVote === 'upvote') {
+              setUpvotes(upvotes - 1);
+            } else if (userVote === 'downvote') {
+              setDownvotes(downvotes - 1);
+            }
+            
+            setUserVote(type);
+            if (type === 'upvote') {
+              setUpvotes(upvotes + 1);
+            } else {
+              setDownvotes(downvotes + 1);
+            }
+          }
         } else {
-          setDownvotes(data.voted ? downvotes + 1 : downvotes - 1);
+          // Vote removed
+          setUserVote(null);
         }
       }
     } catch (error) {
@@ -67,16 +112,39 @@ export function PostVoteButtons({
         description: 'Failed to vote. Please try again.',
         variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
+  const score = upvotes - downvotes;
+
   return (
-    <div className="flex items-center gap-4">
-      <Button variant="outline" size="sm" onClick={() => handleVote('upvote')} disabled={!user}>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => handleVote('upvote')}
+        disabled={!user || loading}
+        className={cn(
+          userVote === 'upvote' && 'bg-primary text-primary-foreground'
+        )}
+      >
         <ArrowUp className="h-4 w-4 mr-1" />
         {upvotes}
       </Button>
-      <Button variant="outline" size="sm" onClick={() => handleVote('downvote')} disabled={!user}>
+      <div className="text-sm font-semibold min-w-[2rem] text-center">
+        {score > 0 ? '+' : ''}{score}
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => handleVote('downvote')}
+        disabled={!user || loading}
+        className={cn(
+          userVote === 'downvote' && 'bg-destructive text-destructive-foreground'
+        )}
+      >
         <ArrowDown className="h-4 w-4 mr-1" />
         {downvotes}
       </Button>

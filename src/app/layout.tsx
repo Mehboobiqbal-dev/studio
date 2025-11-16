@@ -1,23 +1,12 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Inter, Poppins } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/contexts/auth-context';
 import { MainNav } from '@/components/main-nav';
 
-const fontBody = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-body',
-});
-
-const fontHeadline = Poppins({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-headline',
-  weight: ['600', '700'],
-});
+// Using CSS variables for fonts to avoid Turbopack issues
+// Fonts are loaded via globals.css
 
 
 export const metadata: Metadata = {
@@ -41,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-body antialiased", fontBody.variable, fontHeadline.variable)}>
+      <body className={cn("antialiased")}>
         <AuthProvider>
           <MainNav />
           <main>{children}</main>

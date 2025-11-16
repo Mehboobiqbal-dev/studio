@@ -11,11 +11,18 @@ import { PostFeed } from '@/components/post-feed';
 
 export const metadata: Metadata = {
   title: 'ConspiracyHub - Latest Conspiracy Theories & Opinions',
-  description: 'Explore conspiracy theories and opinions on current and historical topics. AI-generated and user-submitted content.',
+  description: 'Explore conspiracy theories and opinions on current and historical topics. AI-generated and user-submitted content. Read without login, share your theories and opinions.',
+  keywords: ['conspiracy theories', 'opinions', 'debate', 'discussion', 'current events', 'history', 'AI generated content'],
   openGraph: {
+    title: 'ConspiracyHub - Conspiracy Theories & Opinions Platform',
+    description: 'Explore conspiracy theories and opinions on current and historical topics. AI-generated and user-submitted content.',
+    type: 'website',
+    siteName: 'ConspiracyHub',
+  },
+  twitter: {
+    card: 'summary_large_image',
     title: 'ConspiracyHub',
     description: 'Explore conspiracy theories and opinions on current and historical topics.',
-    type: 'website',
   },
 };
 
