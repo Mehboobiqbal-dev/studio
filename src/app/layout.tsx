@@ -3,6 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Inter, Poppins } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import { AuthProvider } from '@/contexts/auth-context';
+import { MainNav } from '@/components/main-nav';
 
 const fontBody = Inter({
   subsets: ['latin'],
@@ -19,8 +21,17 @@ const fontHeadline = Poppins({
 
 
 export const metadata: Metadata = {
-  title: 'Opinion Arena Network',
-  description: 'An AI-powered global ecosystem for combating echo chambers through simulations, debates, and communities.',
+  title: 'ConspiracyHub - Conspiracy Theories & Opinions Platform',
+  description: 'Explore conspiracy theories and opinions on current and historical topics. AI-generated and user-submitted content.',
+  keywords: ['conspiracy theories', 'opinions', 'debate', 'discussion', 'current events', 'history'],
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'ConspiracyHub',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 };
 
 export default function RootLayout({
@@ -31,8 +42,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("font-body antialiased", fontBody.variable, fontHeadline.variable)}>
-        {children}
-        <Toaster />
+        <AuthProvider>
+          <MainNav />
+          <main>{children}</main>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

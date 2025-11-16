@@ -1,0 +1,106 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/middleware/auth';
+import { getCollection } from '@/lib/db/mongodb';
+import { Comment } from '@/lib/models/comment';
+import { Post } from '@/lib/models/post';
+import { User } from '@/lib/models/user';
+import { z } from 'zod';
+
+const createCommentSchema = z.object({
+  postId: z.string(),
+  content: z.string().min(1).max(5000),
+  parentId: z.string().optional(),
+});
+
+async function handler(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const validated = createCommentSchema.parse(body);
+    const userId = (request as any).user.userId;
+
+    const commentsCollection = await getCollection<Comment>('comments');
+    const postsCollection = await getCollection<Post>('posts');
+    const usersCollection = await getCollection<User>('users');
+
+    // Verify post exists
+    const post = await postsCollection.findOne({ _id: validated.postId as any });
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get user info
+    const user = await usersCollection.findOne({ _id: userId as any });
+    const authorName = user?.name || 'Anonymous';
+    const authorAvatar = user?.avatar;
+
+    // If parentId provided, verify it exists
+    if (validated.parentId) {
+      const parentComment = await commentsCollection.findOne({ _id: validated.parentId as any });
+      if (!parentComment) {
+        return NextResponse.json(
+          { error: 'Parent comment not found' },
+          { status: 404 }
+        );
+      }
+    }
+
+    const newComment: Omit<Comment, '_id'> = {
+      postId: validated.postId as any,
+      authorId: userId as any,
+      authorName,
+      authorAvatar,
+      content: validated.content,
+      parentId: validated.parentId ? (validated.parentId as any) : undefined,
+      upvotes: 0,
+      downvotes: 0,
+      replyCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isEdited: false,
+      isDeleted: false,
+    };
+
+    const result = await commentsCollection.insertOne(newComment as Comment);
+
+    // Update post comment count
+    await postsCollection.updateOne(
+      { _id: post._id },
+      { $inc: { commentCount: 1 } }
+    );
+
+    // Update parent comment reply count if it's a reply
+    if (validated.parentId) {
+      await commentsCollection.updateOne(
+        { _id: validated.parentId as any },
+        { $inc: { replyCount: 1 } }
+      );
+    }
+
+    return NextResponse.json({
+      message: 'Comment created successfully',
+      comment: {
+        ...newComment,
+        _id: result.insertedId.toString(),
+      },
+    }, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    console.error('Error creating comment:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export const POST = requireAuth(handler);
+

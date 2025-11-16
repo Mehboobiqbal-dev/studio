@@ -1,73 +1,112 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getCollection } from '@/lib/db/mongodb';
+import { Topic } from '@/lib/models/topic';
 import { Post } from '@/lib/models/post';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ArrowUp, MessageCircle, Eye, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export const metadata: Metadata = {
-  title: 'Conspiracy & Opinion Platform - Latest Theories and Opinions',
-  description: 'Explore conspiracy theories and opinions on current and historical topics. AI-generated and user-submitted content.',
-  openGraph: {
-    title: 'Conspiracy & Opinion Platform',
-    description: 'Explore conspiracy theories and opinions on current and historical topics.',
-    type: 'website',
-  },
-};
+interface PageProps {
+  params: { slug: string };
+}
 
-async function getPosts() {
+async function getTopicData(slug: string) {
   try {
+    const topicsCollection = await getCollection<Topic>('topics');
+    const topic = await topicsCollection.findOne({ slug });
+
+    if (!topic) return null;
+
     const postsCollection = await getCollection<Post>('posts');
     const posts = await postsCollection
-      .find({ status: 'published' })
+      .find({ topicSlug: slug, status: 'published' })
       .sort({ createdAt: -1 })
       .limit(20)
       .toArray();
-    
-    return posts.map(post => ({
-      ...post,
-      _id: post._id?.toString(),
-      topicId: post.topicId?.toString(),
-      authorId: post.authorId?.toString(),
-    }));
+
+    return {
+      topic: {
+        ...topic,
+        _id: topic._id?.toString(),
+      },
+      posts: posts.map(post => ({
+        ...post,
+        _id: post._id?.toString(),
+        topicId: post.topicId?.toString(),
+        authorId: post.authorId?.toString(),
+      })),
+    };
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    return [];
+    console.error('Error fetching topic:', error);
+    return null;
   }
 }
 
-export default async function HomePage() {
-  const posts = await getPosts();
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const data = await getTopicData(params.slug);
+  
+  if (!data) {
+    return {
+      title: 'Topic Not Found',
+    };
+  }
+
+  const { topic } = data;
+  
+  return {
+    title: `${topic.name} - Conspiracy & Opinion Platform`,
+    description: topic.description || `Explore ${topic.name} conspiracy theories and opinions`,
+    openGraph: {
+      title: topic.name,
+      description: topic.description || `Explore ${topic.name} conspiracy theories and opinions`,
+      type: 'website',
+    },
+  };
+}
+
+export default async function TopicPage({ params }: PageProps) {
+  const data = await getTopicData(params.slug);
+
+  if (!data) {
+    notFound();
+  }
+
+  const { topic, posts } = data;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-headline font-bold mb-2">
-            Conspiracy & Opinion Platform
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Explore theories and opinions on current and historical topics
-          </p>
-        </div>
+        {/* Breadcrumb */}
+        <nav className="mb-6 text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-foreground">Home</Link>
+          {' / '}
+          <Link href="/topics" className="hover:text-foreground">Topics</Link>
+          {' / '}
+          <span className="text-foreground">{topic.name}</span>
+        </nav>
 
-        <div className="flex gap-4 mb-6">
-          <Button asChild variant="default">
-            <Link href="/create">Create Post</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/topics">Browse Topics</Link>
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-4xl font-headline font-bold mb-2">{topic.name}</h1>
+          {topic.description && (
+            <p className="text-muted-foreground text-lg">{topic.description}</p>
+          )}
+          <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+            <span>{topic.postCount} posts</span>
+            <span>{topic.followerCount} followers</span>
+          </div>
         </div>
 
         <div className="space-y-4">
           {posts.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">No posts yet. Be the first to share!</p>
+                <p className="text-muted-foreground">No posts in this topic yet.</p>
+                <Link href="/create">
+                  <Badge className="mt-4 cursor-pointer">Create First Post</Badge>
+                </Link>
               </CardContent>
             </Card>
           ) : (
@@ -82,11 +121,6 @@ export default async function HomePage() {
                         </Badge>
                         {post.isAIGenerated && (
                           <Badge variant="secondary">AI Generated</Badge>
-                        )}
-                        {post.topicSlug && (
-                          <Link href={`/t/${post.topicSlug}`}>
-                            <Badge variant="outline">{post.topicSlug}</Badge>
-                          </Link>
                         )}
                       </div>
                       <Link href={`/p/${post.slug}`}>
@@ -124,15 +158,6 @@ export default async function HomePage() {
                       <span>by {post.authorName}</span>
                     )}
                   </div>
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {post.tags.map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ))
