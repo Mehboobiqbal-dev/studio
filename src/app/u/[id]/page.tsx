@@ -1,0 +1,178 @@
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getCollection } from '@/lib/db/mongodb';
+import { User } from '@/lib/models/user';
+import { Post } from '@/lib/models/post';
+import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ArrowUp, MessageCircle, Eye, Clock } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ObjectId } from 'mongodb';
+
+interface PageProps {
+  params: { id: string };
+}
+
+async function getUserProfile(userId: string) {
+  try {
+    const usersCollection = await getCollection<User>('users');
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+
+    if (!user) return null;
+
+    const postsCollection = await getCollection<Post>('posts');
+    const posts = await postsCollection
+      .find({ authorId: user._id, status: 'published' })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .toArray();
+
+    return {
+      user: {
+        _id: user._id?.toString(),
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        bio: user.bio,
+        createdAt: user.createdAt,
+      },
+      posts: posts.map(post => ({
+        ...post,
+        _id: post._id?.toString(),
+        topicId: post.topicId?.toString(),
+        authorId: post.authorId?.toString(),
+      })),
+    };
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const data = await getUserProfile(params.id);
+  
+  if (!data) {
+    return {
+      title: 'User Not Found',
+    };
+  }
+
+  const { user } = data;
+  
+  return {
+    title: `${user.name} | ConspiracyHub`,
+    description: user.bio || `Posts by ${user.name}`,
+  };
+}
+
+export default async function UserProfilePage({ params }: PageProps) {
+  const data = await getUserProfile(params.id);
+
+  if (!data) {
+    notFound();
+  }
+
+  const { user, posts } = data;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-start gap-6">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="text-2xl">
+                  {user.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <CardTitle className="text-3xl mb-2">{user.name}</CardTitle>
+                {user.bio && (
+                  <CardDescription className="text-base mt-2">
+                    {user.bio}
+                  </CardDescription>
+                )}
+                <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                  <span>Member since {new Date(user.createdAt).getFullYear()}</span>
+                  <span>{posts.length} posts</span>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Posts</h2>
+          {posts.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No posts yet.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <Card key={post._id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant={post.type === 'conspiracy' ? 'destructive' : 'default'}>
+                            {post.type}
+                          </Badge>
+                          {post.isAIGenerated && (
+                            <Badge variant="secondary">AI Generated</Badge>
+                          )}
+                          {post.topicSlug && (
+                            <Link href={`/t/${post.topicSlug}`}>
+                              <Badge variant="outline">{post.topicSlug}</Badge>
+                            </Link>
+                          )}
+                        </div>
+                        <Link href={`/p/${post.slug}`}>
+                          <CardTitle className="text-2xl hover:text-primary transition-colors cursor-pointer">
+                            {post.title}
+                          </CardTitle>
+                        </Link>
+                        {post.excerpt && (
+                          <CardDescription className="mt-2 line-clamp-2">
+                            {post.excerpt}
+                          </CardDescription>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <ArrowUp className="h-4 w-4" />
+                        <span>{post.upvotes}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{post.commentCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        <span>{post.views}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
