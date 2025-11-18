@@ -10,7 +10,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const ModerateContentInputSchema = z.object({
   text: z.string().describe('The text content to be moderated.'),
@@ -26,7 +26,7 @@ const ModerateContentOutputSchema = z.object({
 });
 export type ModerateContentOutput = z.infer<typeof ModerateContentOutputSchema>;
 
-export async function moderateContent(input: ModerateContentInput): Promise<ModerateContentOutput> {
+export async function assistWithContentModeration(input: ModerateContentInput): Promise<ModerateContentOutput> {
   return moderateContentFlow(input);
 }
 

@@ -15,8 +15,7 @@ export interface TimeCapsule {
   transactionHash?: string;
   status: 'sealed' | 'unlocked' | 'opened';
   aiPrediction?: {
-    predictedViews: string[];
-    confidence: number;
+    simulation: string;
     generatedAt: Date;
   };
   actualViews?: {

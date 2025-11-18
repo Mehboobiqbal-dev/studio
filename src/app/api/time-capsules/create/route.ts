@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth';
 import { getCollection } from '@/lib/db/mongodb';
 import { TimeCapsule } from '@/lib/models/time-capsule';
-import { generatePredictiveSimulationsForTimeCapsules } from '@/ai/flows/generate-predictive-simulations-for-time-capsules';
+import { generatePredictiveSimulations } from '@/ai/flows/generate-predictive-simulations-for-time-capsules';
 import { z } from 'zod';
 
 const createCapsuleSchema = z.object({
@@ -27,9 +27,9 @@ async function handler(request: NextRequest) {
     }
 
     // Generate AI prediction
-    const aiPrediction = await generatePredictiveSimulationsForTimeCapsules({
-      content: validated.content,
-      topic: validated.topic,
+    const aiPrediction = await generatePredictiveSimulations({
+      opinion: validated.content,
+      unlockDate: validated.unlockDate,
     });
 
     const capsulesCollection = await getCollection<TimeCapsule>('time_capsules');
@@ -45,8 +45,7 @@ async function handler(request: NextRequest) {
       sealedAt: new Date(),
       status: 'sealed',
       aiPrediction: {
-        predictedViews: aiPrediction.predictedViews || [],
-        confidence: aiPrediction.confidence || 0.7,
+        simulation: aiPrediction.simulation,
         generatedAt: new Date(),
       },
       reminders: [],

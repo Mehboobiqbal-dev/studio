@@ -17,7 +17,7 @@ import { PostMenu } from '@/components/post-menu';
 import { RelativeTime } from '@/components/relative-time';
 
 interface PageProps {
-  params: { slug: string };
+  params: { slug: string } | Promise<{ slug: string }>;
 }
 
 async function getPost(slug: string) {
@@ -85,7 +85,8 @@ async function getPost(slug: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const data = await getPost(params.slug);
+  const { slug } = await params;
+  const data = await getPost(slug);
   
   if (!data) {
     return {
@@ -116,7 +117,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function PostPage({ params }: PageProps) {
-  const data = await getPost(params.slug);
+  const { slug } = await params;
+  const data = await getPost(slug);
 
   if (!data) {
     notFound();

@@ -20,20 +20,15 @@ export function validatePasswordStrength(password: string): {
     errors.push('Password must be at least 8 characters long');
   }
 
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
+  if (!/[A-Za-z]/.test(password)) {
+    errors.push('Password must contain at least one letter');
   }
 
-  if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
-  }
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-  if (!/[0-9]/.test(password)) {
-    errors.push('Password must contain at least one number');
-  }
-
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push('Password must contain at least one special character');
+  if (!hasNumber && !hasSpecial) {
+    errors.push('Password must contain at least one number or special character');
   }
 
   return {
@@ -41,6 +36,7 @@ export function validatePasswordStrength(password: string): {
     errors,
   };
 }
+
 
 
 

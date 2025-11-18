@@ -62,3 +62,4 @@ setTimeout(() => {
 console.log('AI generation startup script loaded. Will initialize in 5 seconds...');
 
 
+

@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const ModerateRealTimeDebateInputSchema = z.object({
   statement: z.string().describe('The statement made by a participant in the debate.'),
@@ -25,8 +25,37 @@ const ModerateRealTimeDebateOutputSchema = z.object({
 });
 export type ModerateRealTimeDebateOutput = z.infer<typeof ModerateRealTimeDebateOutputSchema>;
 
-export async function moderateRealTimeDebate(input: ModerateRealTimeDebateInput): Promise<ModerateRealTimeDebateOutput> {
+export async function moderateRealTimeDebate(
+  input: ModerateRealTimeDebateInput
+): Promise<ModerateRealTimeDebateOutput> {
   return moderateRealTimeDebateFlow(input);
+}
+
+export interface DebateModerationResult {
+  toxic: boolean;
+  reason?: string;
+  fallacies?: string[];
+}
+
+export async function moderateRealTimeDebates(input: {
+  content: string;
+  context: string;
+}): Promise<DebateModerationResult> {
+  const result = await moderateRealTimeDebate({
+    statement: input.content,
+    context: input.context,
+    rules: 'Follow community guidelines and debate rules respectfully.',
+  });
+
+  const toxic = result.score <= 2 || result.isFallacy;
+  const fallacies =
+    result.isFallacy && result.fallacyType !== 'N/A' ? [result.fallacyType] : undefined;
+
+  return {
+    toxic,
+    reason: result.explanation,
+    fallacies,
+  };
 }
 
 const detectFallacyTool = ai.defineTool({
@@ -122,4 +151,3 @@ const moderateRealTimeDebateFlow = ai.defineFlow(
     return output!;
   }
 );
-export const moderateRealTimeDebates = moderateRealTimeDebateFlow;
