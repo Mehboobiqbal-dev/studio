@@ -11,7 +11,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { CommentSort } from './comment-sort';
 import { CommentMenu } from './comment-menu';
-import { Textarea } from '@/components/ui/textarea';
 
 interface Comment {
   _id: string;
