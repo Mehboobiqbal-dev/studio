@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/contexts/auth-context';
 import { MainNav } from '@/components/main-nav';
+import { ReduxProvider } from '@/store/provider';
 
 // Using CSS variables for fonts to avoid Turbopack issues
 // Fonts are loaded via globals.css
@@ -31,11 +32,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("antialiased")}>
-        <AuthProvider>
-          <MainNav />
-          <main>{children}</main>
-          <Toaster />
-        </AuthProvider>
+        <ReduxProvider>
+          <AuthProvider>
+            <MainNav />
+            <main>{children}</main>
+            <Toaster />
+          </AuthProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

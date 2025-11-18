@@ -1,8 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { User, getCurrentUser, logout as logoutUser } from '@/lib/auth/client';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import type { RootState } from '@/store/store';
+import { clearUser, setLoading, setUser } from '@/store/auth-slice';
 
 interface AuthContextType {
   user: User | null;
@@ -15,39 +18,38 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { user, loading } = useAppSelector((state: RootState) => state.auth);
   const router = useRouter();
 
   const refreshUser = async () => {
+    dispatch(setLoading(true));
     try {
       const currentUser = await getCurrentUser();
-      setUser(currentUser);
+      dispatch(setUser(currentUser));
     } catch (error) {
       console.error('Error refreshing user:', error);
-      setUser(null);
-    } finally {
-      setLoading(false);
+      dispatch(setUser(null));
     }
   };
 
   useEffect(() => {
     refreshUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = (userData: User) => {
-    setUser(userData);
+    dispatch(setUser(userData));
   };
 
   const logout = async () => {
     try {
       await logoutUser();
-      setUser(null);
+      dispatch(clearUser());
       router.push('/login');
     } catch (error) {
       console.error('Error logging out:', error);
-      // Still clear user state even if API call fails
-      setUser(null);
+      dispatch(clearUser());
       router.push('/login');
     }
   };

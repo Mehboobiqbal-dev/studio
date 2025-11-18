@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ export default function CreatePostPage() {
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
   const [topics, setTopics] = useState<Array<{ _id: string; name: string; slug: string }>>([]);
+  const OPTIONAL_TOPIC_VALUE = useMemo(() => '__no_topic__', []);
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -188,12 +189,17 @@ export default function CreatePostPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="topic">Topic (Optional)</Label>
-                <Select value={topicSlug} onValueChange={setTopicSlug}>
+                <Select
+                  value={topicSlug || OPTIONAL_TOPIC_VALUE}
+                  onValueChange={(value) =>
+                    setTopicSlug(value === OPTIONAL_TOPIC_VALUE ? '' : value)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a topic" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value={OPTIONAL_TOPIC_VALUE}>No topic</SelectItem>
                     {topics.map((topic) => (
                       <SelectItem key={topic._id} value={topic.slug}>
                         {topic.name}

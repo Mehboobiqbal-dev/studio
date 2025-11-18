@@ -5,12 +5,22 @@ export interface AuthenticatedRequest extends NextRequest {
   user?: JWTPayload;
 }
 
+function extractToken(req: NextRequest): string | null {
+  const authHeader = req.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  const accessTokenCookie = req.cookies.get('accessToken');
+  return accessTokenCookie?.value || null;
+}
+
 export async function authenticateRequest(
   request: NextRequest
 ): Promise<{ user: JWTPayload } | { error: NextResponse }> {
-  const authHeader = request.headers.get('authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const token = extractToken(request);
+
+  if (!token) {
     return {
       error: NextResponse.json(
         { error: 'Unauthorized - No token provided' },
@@ -18,8 +28,6 @@ export async function authenticateRequest(
       ),
     };
   }
-
-  const token = authHeader.substring(7);
 
   try {
     const payload = verifyAccessToken(token);

@@ -90,13 +90,14 @@ Return ONLY a valid JSON object in this exact format:
     console.error('Error generating conspiracy theory:', error);
     
     // Fallback response
+    const detailText = input.historical
+      ? 'This historical event has many unanswered questions.'
+      : "There are many things the mainstream media doesn't want you to know about this topic.";
+    const fallbackContent = `This is a conspiracy theory about ${input.topic}. ${detailText} The truth is often hidden in plain sight, and when you start connecting the dots, a different picture emerges. Many people believe that there's more to this story than meets the eye.`;
+
     return {
       title: `The Hidden Truth About ${input.topic}`,
-      content: `This is a conspiracy theory about ${input.topic}. ${
-        input.historical
-          ? 'This historical event has many unanswered questions.'
-          : "There are many things the mainstream media doesn't want you to know about this topic."
-      } The truth is often hidden in plain sight, and when you start connecting the dots, a different picture emerges. Many people believe that there's more to this story than meets the eye.`,
+      content: fallbackContent,
       tags: [input.topic.toLowerCase().replace(/\s+/g, '-'), 'conspiracy', 'theory'],
       excerpt: `A deep dive into the conspiracy theories surrounding ${input.topic} and what they reveal about hidden truths.`,
     };

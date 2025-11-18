@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login, register } from '@/lib/auth/client';
 import { useAuth } from '@/contexts/auth-context';
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login: setAuthUser } = useAuth();
   const { toast } = useToast();
 
@@ -39,7 +40,10 @@ export default function LoginPage() {
         title: 'Success',
         description: isLogin ? 'Logged in successfully!' : 'Account created successfully!',
       });
-      router.push('/dashboard');
+      const redirectPath = searchParams.get('redirect');
+      const safeRedirect =
+        redirectPath && redirectPath.startsWith('/') ? redirectPath : '/feed';
+      router.push(safeRedirect);
     } catch (error: any) {
       toast({
         title: 'Error',
