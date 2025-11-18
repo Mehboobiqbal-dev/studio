@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ArrowUp, MessageCircle, Eye, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { TopicFollowButton } from '@/components/topic-follow-button';
 
 interface PageProps {
-  params: { slug: string };
+  params: { slug: string } | Promise<{ slug: string }>;
 }
 
 async function getTopicData(slug: string) {
@@ -46,7 +47,8 @@ async function getTopicData(slug: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const data = await getTopicData(params.slug);
+  const { slug } = await params;
+  const data = await getTopicData(slug);
   
   if (!data) {
     return {
@@ -68,7 +70,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function TopicPage({ params }: PageProps) {
-  const data = await getTopicData(params.slug);
+  const { slug } = await params;
+  const data = await getTopicData(slug);
 
   if (!data) {
     notFound();
@@ -89,13 +92,18 @@ export default async function TopicPage({ params }: PageProps) {
         </nav>
 
         <div className="mb-8">
-          <h1 className="text-4xl font-headline font-bold mb-2">{topic.name}</h1>
-          {topic.description && (
-            <p className="text-muted-foreground text-lg">{topic.description}</p>
-          )}
-          <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-            <span>{topic.postCount} posts</span>
-            <span>{topic.followerCount} followers</span>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-headline font-bold mb-2">{topic.name}</h1>
+              {topic.description && (
+                <p className="text-muted-foreground text-lg">{topic.description}</p>
+              )}
+              <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                <span>{topic.postCount} posts</span>
+                <span>{topic.followerCount} followers</span>
+              </div>
+            </div>
+            <TopicFollowButton topicSlug={topic.slug} initialFollowerCount={topic.followerCount} />
           </div>
         </div>
 

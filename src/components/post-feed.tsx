@@ -27,15 +27,21 @@ interface Post {
   createdAt: Date;
 }
 
-export function PostFeed() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+interface PostFeedProps {
+  initialPosts?: Post[];
+}
+
+export function PostFeed({ initialPosts }: PostFeedProps = {}) {
+  const [posts, setPosts] = useState<Post[]>(initialPosts || []);
+  const [loading, setLoading] = useState(!initialPosts);
   const [sort, setSort] = useState('newest');
   const [type, setType] = useState<'all' | 'conspiracy' | 'opinion'>('all');
 
   useEffect(() => {
-    fetchPosts();
-  }, [sort, type]);
+    if (!initialPosts) {
+      fetchPosts();
+    }
+  }, [sort, type, initialPosts]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -79,8 +85,11 @@ export function PostFeed() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="popular">Most Popular</SelectItem>
+            <SelectItem value="hot">Hot</SelectItem>
             <SelectItem value="trending">Trending</SelectItem>
+            <SelectItem value="popular">Most Popular</SelectItem>
+            <SelectItem value="top">Top</SelectItem>
+            <SelectItem value="controversial">Controversial</SelectItem>
           </SelectContent>
         </Select>
 

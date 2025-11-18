@@ -13,6 +13,8 @@ import { ArrowUp, ArrowDown, MessageCircle, Eye, Clock, User as UserIcon } from 
 import { formatDistanceToNow } from 'date-fns';
 import { CommentSection } from '@/components/comment-section';
 import { PostVoteButtons } from '@/components/post-vote-buttons';
+import { PostActions } from '@/components/post-actions';
+import { PostMenu } from '@/components/post-menu';
 
 interface PageProps {
   params: { slug: string };
@@ -184,21 +186,26 @@ export default async function PostPage({ params }: PageProps) {
                     )}
                   </div>
                   <CardTitle className="text-3xl mb-2">{post.title}</CardTitle>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
-                    </div>
-                    {author && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <UserIcon className="h-4 w-4" />
-                        <span>{author.name}</span>
+                        <Clock className="h-4 w-4" />
+                        <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
                       </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      <span>{post.views} views</span>
+                      {author && (
+                        <div className="flex items-center gap-1">
+                          <UserIcon className="h-4 w-4" />
+                          <Link href={`/u/${author._id}`} className="hover:text-foreground">
+                            {author.name}
+                          </Link>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        <span>{post.views} views</span>
+                      </div>
                     </div>
+                    <PostMenu postId={post._id} postSlug={post.slug} authorId={post.authorId} />
                   </div>
                 </div>
               </div>
@@ -208,17 +215,20 @@ export default async function PostPage({ params }: PageProps) {
                 <div className="whitespace-pre-wrap">{post.content}</div>
               </div>
 
-              <div className="flex items-center gap-4 pt-4 border-t">
-                <PostVoteButtons
-                  postId={post._id}
-                  postSlug={post.slug}
-                  initialUpvotes={post.upvotes}
-                  initialDownvotes={post.downvotes}
-                />
-                <Button variant="outline" size="sm" disabled>
-                  <MessageCircle className="h-4 w-4 mr-1" />
-                  {post.commentCount} Comments
-                </Button>
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center gap-4">
+                  <PostVoteButtons
+                    postId={post._id}
+                    postSlug={post.slug}
+                    initialUpvotes={post.upvotes}
+                    initialDownvotes={post.downvotes}
+                  />
+                  <Button variant="outline" size="sm" disabled>
+                    <MessageCircle className="h-4 w-4 mr-1" />
+                    {post.commentCount} Comments
+                  </Button>
+                </div>
+                <PostActions postId={post._id} postSlug={post.slug} />
               </div>
 
               {post.tags && post.tags.length > 0 && (
@@ -235,10 +245,7 @@ export default async function PostPage({ params }: PageProps) {
 
           {/* Comments Section */}
           <Card>
-            <CardHeader>
-              <CardTitle>Comments ({post.commentCount})</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <CommentSection postId={post._id} postSlug={post.slug} />
             </CardContent>
           </Card>

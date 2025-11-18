@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, Plus, User, LogOut, Settings, Home, TrendingUp } from 'lucide-react';
+import { Search, Plus, User, LogOut, Settings, Home, TrendingUp, Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -42,6 +42,11 @@ export function MainNav() {
               <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
                 Home
               </Link>
+              {user && (
+                <Link href="/feed" className="text-sm font-medium hover:text-primary transition-colors">
+                  Feed
+                </Link>
+              )}
               <Link href="/topics" className="text-sm font-medium hover:text-primary transition-colors">
                 Topics
               </Link>
@@ -97,6 +102,12 @@ export function MainNav() {
                       <Link href={`/u/${user.id}`}>
                         <User className="mr-2 h-4 w-4" />
                         Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/saved">
+                        <Bookmark className="mr-2 h-4 w-4" />
+                        Saved Posts
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

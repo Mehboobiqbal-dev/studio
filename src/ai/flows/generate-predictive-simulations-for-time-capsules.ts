@@ -9,7 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GeneratePredictiveSimulationsInputSchema = z.object({
   opinion: z
@@ -55,7 +55,7 @@ const generatePredictiveSimulationsFlow = ai.defineFlow(
     inputSchema: GeneratePredictiveSimulationsInputSchema,
     outputSchema: GeneratePredictiveSimulationsOutputSchema,
   },
-  async input => {
+  async (input: GeneratePredictiveSimulationsInput) => {
     const {output} = await prompt(input);
     return output!;
   }

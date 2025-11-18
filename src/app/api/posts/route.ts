@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const topicSlug = searchParams.get('topic');
     const type = searchParams.get('type') as 'conspiracy' | 'opinion' | null;
-    const sort = searchParams.get('sort') || 'newest'; // newest, popular, trending
+    const sort = searchParams.get('sort') || 'newest'; // newest, popular, trending, hot, controversial
 
     const postsCollection = await getCollection<Post>('posts');
     
@@ -27,19 +27,54 @@ export async function GET(request: NextRequest) {
     }
 
     let sortQuery: any = {};
+    const now = new Date();
+    
     switch (sort) {
       case 'popular':
+        // Most upvotes overall
         sortQuery = { upvotes: -1, createdAt: -1 };
         break;
       case 'trending':
-        // Trending = recent posts with high engagement
+        // Recent posts with high engagement
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        query.createdAt = { $gte: oneDayAgo };
         sortQuery = { 
-          $expr: { 
+          upvotes: -1,
+          commentCount: -1,
+          views: -1,
+        };
+        break;
+      case 'hot':
+        // Reddit-style hot algorithm: balance between score and time
+        // Posts from last 7 days, weighted by engagement
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        query.createdAt = { $gte: sevenDaysAgo };
+        sortQuery = { 
+          $expr: {
             $add: [
-              { $multiply: [{ $subtract: [new Date(), '$createdAt'] }, -1] },
-              { $multiply: ['$upvotes', 10] },
-              { $multiply: ['$commentCount', 5] }
+              { $multiply: ['$upvotes', 2] },
+              { $multiply: ['$commentCount', 3] },
+              { $multiply: [{ $subtract: [now, '$createdAt'] }, -0.0001] }
             ]
+          }
+        };
+        break;
+      case 'controversial':
+        // High engagement but close upvote/downvote ratio
+        sortQuery = { 
+          $expr: {
+            $subtract: [
+              { $add: ['$upvotes', '$downvotes'] },
+              { $abs: { $subtract: ['$upvotes', '$downvotes'] } }
+            ]
+          }
+        };
+        break;
+      case 'top':
+        // Top posts of all time
+        sortQuery = { 
+          $expr: {
+            $subtract: ['$upvotes', '$downvotes']
           }
         };
         break;
@@ -80,4 +115,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

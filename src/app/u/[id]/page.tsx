@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowUp, MessageCircle, Eye, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ObjectId } from 'mongodb';
+import { Trophy, TrendingUp, MessageSquare, FileText } from 'lucide-react';
 
 interface PageProps {
   params: { id: string };
@@ -23,11 +24,22 @@ async function getUserProfile(userId: string) {
     if (!user) return null;
 
     const postsCollection = await getCollection<Post>('posts');
+    const commentsCollection = await getCollection('comments');
+    
     const posts = await postsCollection
       .find({ authorId: user._id, status: 'published' })
       .sort({ createdAt: -1 })
       .limit(20)
       .toArray();
+
+    const comments = await commentsCollection
+      .find({ authorId: user._id })
+      .count();
+
+    // Calculate karma
+    const postKarma = posts.reduce((sum, post) => sum + post.upvotes - post.downvotes, 0);
+    const commentKarma = 0; // Would need to fetch comments for accurate calculation
+    const karma = postKarma + commentKarma;
 
     return {
       user: {
@@ -37,6 +49,11 @@ async function getUserProfile(userId: string) {
         avatar: user.avatar,
         bio: user.bio,
         createdAt: user.createdAt,
+      },
+      stats: {
+        postCount: posts.length,
+        commentCount: comments,
+        karma,
       },
       posts: posts.map(post => ({
         ...post,
@@ -75,7 +92,7 @@ export default async function UserProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  const { user, posts } = data;
+  const { user, posts, stats } = data;
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,9 +113,35 @@ export default async function UserProfilePage({ params }: PageProps) {
                     {user.bio}
                   </CardDescription>
                 )}
-                <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                  <span>Member since {new Date(user.createdAt).getFullYear()}</span>
-                  <span>{posts.length} posts</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-primary" />
+                    <div>
+                      <div className="text-2xl font-bold">{stats.karma}</div>
+                      <div className="text-xs text-muted-foreground">Karma</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <div>
+                      <div className="text-2xl font-bold">{stats.postCount}</div>
+                      <div className="text-xs text-muted-foreground">Posts</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    <div>
+                      <div className="text-2xl font-bold">{stats.commentCount}</div>
+                      <div className="text-xs text-muted-foreground">Comments</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <div>
+                      <div className="text-2xl font-bold">{new Date(user.createdAt).getFullYear()}</div>
+                      <div className="text-xs text-muted-foreground">Member Since</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

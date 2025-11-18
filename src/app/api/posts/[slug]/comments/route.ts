@@ -10,6 +10,8 @@ export async function GET(
 ) {
   try {
     const slug = params.slug;
+    const { searchParams } = new URL(request.url);
+    const sort = searchParams.get('sort') || 'best';
 
     const postsCollection = await getCollection<Post>('posts');
     const post = await postsCollection.findOne({ slug });
@@ -22,10 +24,39 @@ export async function GET(
     }
 
     const commentsCollection = await getCollection<Comment>('comments');
-    const comments = await commentsCollection
+    let comments = await commentsCollection
       .find({ postId: post._id, isDeleted: false, parentId: null })
-      .sort({ createdAt: -1 })
       .toArray();
+
+    // Sort comments based on sort parameter
+    switch (sort) {
+      case 'best':
+        comments.sort((a, b) => {
+          const scoreA = a.upvotes - a.downvotes;
+          const scoreB = b.upvotes - b.downvotes;
+          if (scoreA !== scoreB) return scoreB - scoreA;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        break;
+      case 'top':
+        comments.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+        break;
+      case 'new':
+        comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case 'old':
+        comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+      case 'controversial':
+        comments.sort((a, b) => {
+          const totalA = a.upvotes + a.downvotes;
+          const totalB = b.upvotes + b.downvotes;
+          const diffA = Math.abs(a.upvotes - a.downvotes);
+          const diffB = Math.abs(b.upvotes - b.downvotes);
+          return (totalB - diffB) - (totalA - diffA);
+        });
+        break;
+    }
 
     // Get replies for each comment
     const commentsWithReplies = await Promise.all(
