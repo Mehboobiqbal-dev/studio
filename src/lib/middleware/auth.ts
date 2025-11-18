@@ -3,6 +3,7 @@ import { verifyAccessToken, JWTPayload } from '../auth/jwt';
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: JWTPayload;
+  params?: Record<string, string>;
 }
 
 function extractToken(req: NextRequest): string | null {
@@ -13,6 +14,14 @@ function extractToken(req: NextRequest): string | null {
 
   const accessTokenCookie = req.cookies.get('accessToken');
   return accessTokenCookie?.value || null;
+}
+
+async function resolveParams(params: any) {
+  if (!params) return undefined;
+  if (typeof params.then === 'function') {
+    return await params;
+  }
+  return params;
 }
 
 export async function authenticateRequest(
@@ -42,7 +51,9 @@ export async function authenticateRequest(
   }
 }
 
-export function requireAuth(handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>) {
+export function requireAuth(
+  handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+) {
   return async (req: NextRequest, context?: any) => {
     const authResult = await authenticateRequest(req);
     
@@ -52,13 +63,21 @@ export function requireAuth(handler: (req: AuthenticatedRequest, context?: any) 
 
     const authenticatedReq = req as AuthenticatedRequest;
     authenticatedReq.user = authResult.user;
+
+    if (context?.params) {
+      const resolvedParams = await resolveParams(context.params);
+      (authenticatedReq as any).params = resolvedParams;
+      context = { ...context, params: resolvedParams };
+    }
     
     return handler(authenticatedReq, context);
   };
 }
 
 export function requireRole(allowedRoles: string[]) {
-  return (handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>) => {
+  return (
+    handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+  ) => {
     return async (req: NextRequest, context?: any) => {
       const authResult = await authenticateRequest(req);
       
@@ -75,6 +94,12 @@ export function requireRole(allowedRoles: string[]) {
 
       const authenticatedReq = req as AuthenticatedRequest;
       authenticatedReq.user = authResult.user;
+
+      if (context?.params) {
+        const resolvedParams = await resolveParams(context.params);
+        (authenticatedReq as any).params = resolvedParams;
+        context = { ...context, params: resolvedParams };
+      }
       
       return handler(authenticatedReq, context);
     };

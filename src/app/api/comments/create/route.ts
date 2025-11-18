@@ -5,6 +5,7 @@ import { Comment } from '@/lib/models/comment';
 import { Post } from '@/lib/models/post';
 import { User } from '@/lib/models/user';
 import { z } from 'zod';
+import { ObjectId } from 'mongodb';
 
 const createCommentSchema = z.object({
   postId: z.string(),
@@ -23,7 +24,8 @@ async function handler(request: NextRequest) {
     const usersCollection = await getCollection<User>('users');
 
     // Verify post exists
-    const post = await postsCollection.findOne({ _id: validated.postId as any });
+    const postObjectId = new ObjectId(validated.postId);
+    const post = await postsCollection.findOne({ _id: postObjectId });
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -38,7 +40,8 @@ async function handler(request: NextRequest) {
 
     // If parentId provided, verify it exists
     if (validated.parentId) {
-      const parentComment = await commentsCollection.findOne({ _id: validated.parentId as any });
+      const parentObjectId = new ObjectId(validated.parentId);
+      const parentComment = await commentsCollection.findOne({ _id: parentObjectId });
       if (!parentComment) {
         return NextResponse.json(
           { error: 'Parent comment not found' },
@@ -48,12 +51,12 @@ async function handler(request: NextRequest) {
     }
 
     const newComment: Omit<Comment, '_id'> = {
-      postId: validated.postId as any,
+      postId: postObjectId,
       authorId: userId as any,
       authorName,
       authorAvatar,
       content: validated.content,
-      parentId: validated.parentId ? (validated.parentId as any) : undefined,
+      parentId: validated.parentId ? new ObjectId(validated.parentId) : undefined,
       upvotes: 0,
       downvotes: 0,
       replyCount: 0,

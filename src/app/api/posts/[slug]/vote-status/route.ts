@@ -6,19 +6,23 @@ import { verifyAccessToken } from '@/lib/auth/jwt';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const slug = params.slug;
+    const { slug } = await params;
     const authHeader = request.headers.get('authorization');
+    const cookieToken = request.cookies.get('accessToken')?.value;
     
     let userVote = null;
     let userId = null;
 
     // Check if user is authenticated
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : cookieToken;
+
+    if (token) {
       try {
-        const token = authHeader.substring(7);
         const payload = verifyAccessToken(token);
         userId = payload.userId;
       } catch (error) {

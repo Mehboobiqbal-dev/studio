@@ -4,9 +4,12 @@ import { getCollection } from '@/lib/db/mongodb';
 import { Topic } from '@/lib/models/topic';
 import { UserStats } from '@/lib/models/user-activity';
 
-async function handler(request: NextRequest) {
+async function handler(
+  request: NextRequest,
+  context?: { params?: { slug: string } }
+) {
   try {
-    const { slug } = (request as any).params || {};
+    const slug = context?.params?.slug;
     const userId = (request as any).user.userId;
 
     if (!slug) {

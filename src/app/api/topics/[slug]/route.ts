@@ -4,10 +4,10 @@ import { Topic } from '@/lib/models/topic';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const slug = params.slug;
+    const { slug } = await params;
 
     const topicsCollection = await getCollection<Topic>('topics');
     const topic = await topicsCollection.findOne({ slug });
